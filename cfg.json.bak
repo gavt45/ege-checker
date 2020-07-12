@@ -1,0 +1,10 @@
+{
+    "TG_APP_ID": "<TELEGRAM APP ID>",
+    "TG_APP_TOKEN": "<TELEGRAM APP TOKEN>",
+    "users": [
+        {"username": "@gavt45", "examcount":1, "cookie": "<Participant cookie value>"}
+    ], 
+    "useragents_file": "useragents.txt", 
+    "max_wait": 30, 
+    "min_wait": 5
+}
