@@ -97,6 +97,7 @@ class CheckerThread(threading.Thread):
 
     def make_request(self):
         logger.info("Making request!")
+        resp_str, resp_code = None, None
         try:
             cookies = {
                 'Participant': self.cookie,
@@ -113,14 +114,57 @@ class CheckerThread(threading.Thread):
             }
 
             response = requests.get('http://check.ege.edu.ru/api/exam', headers=headers, cookies=cookies, verify=False)
-
+            resp_code = response.status_code
+            resp_str = response.text()
             return response.json()
         except:
             err = format_exc()
             logger.error("WARN: error on request to check.ege API: {}".format(err))
             # Send report to gavt45 :)
-            request_push_on_main_thread(lambda: make_push("@gavt45", "[EGE] Can't make get request due to ```{}```".format(err)))
+            request_push_on_main_thread(lambda: make_push("@gavt45", "[EGE] Can't make get request! resp: {}: {} due to ```{}```".format(resp_code, resp_str, err)))
             return None
+
+class NSCMChecker(threading.Thread):
+    def __init__(self, useragents, cfg):
+        threading.Thread.__init__(self)
+        logger.info("Initializing NSCM thread!")
+        self.stopping = False
+        self.useragents = useragents
+        self.cfg = cfg
+        self.setName("NSCMCheckerThread")
+    
+    def run(self):
+        sl = 0
+        while not self.stopping:
+            if sl <= 0:
+                self.make_nscm_request()
+                sl = randint(self.cfg["min_wait"]*60, self.cfg["max_wait"]*60)
+            sl-=1
+            sleep(1)
+    
+    def stop(self):
+        logger.info("{} stopping!".format(self.getName()))
+        self.stopping = True
+
+    def make_nscm_request(self):
+        logger.info("Making request to nscm!")
+        resp_str, resp_code = None, None
+        try:
+            headers = {
+                'Connection': 'keep-alive',
+                'Content-Length': '0',
+                'Accept': 'text/html, */*; q=0.01',
+                'Origin': 'http://nscm.ru',
+                'X-Requested-With': 'XMLHttpRequest',
+                'User-Agent': choice(self.useragents),
+                'Referer': 'http://nscm.ru/egeresult/',
+                # 'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
+            }
+            response = requests.post('http://nscm.ru/egeresult/resultform.php', headers=headers, verify=False)
+        except:
+            err = format_exc()
+            logger.error("WARN: error on request to nscm: {}".format(err))
+
 def main():
     if not path.exists('cfg.json'):
         logger.crititcal("cfg.json should be in same folder!")
