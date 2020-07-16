@@ -8,6 +8,7 @@ import threading
 import json
 from os import path
 from telethon.sync import TelegramClient, events
+from bs4 import BeautifulSoup
 import asyncio
 import queue
 import sys
@@ -115,7 +116,7 @@ class CheckerThread(threading.Thread):
 
             response = requests.get('http://check.ege.edu.ru/api/exam', headers=headers, cookies=cookies, verify=False)
             resp_code = response.status_code
-            resp_str = response.text()
+            resp_str = response.text
             return response.json()
         except:
             err = format_exc()
@@ -131,14 +132,36 @@ class NSCMChecker(threading.Thread):
         self.stopping = False
         self.useragents = useragents
         self.cfg = cfg
+        self.available_exams = []
         self.setName("NSCMCheckerThread")
     
     def run(self):
         sl = 0
         while not self.stopping:
             if sl <= 0:
-                self.make_nscm_request()
+                res = self.make_nscm_request()
+                # logger.info("RES: {}".format("Физика" in res))
+                if res:
+                    html = BeautifulSoup(res,"html.parser")
+                    tds = html.find_all("td")
+                    for exam_name in self.cfg["exams"]:
+                        for tag in tds:
+                            if (exam_name in str(tag)) and not ("(ГВЭ)" in str(tag)) and not (exam_name in self.available_exams):
+                                logger.critical("NEW results on {}".format(exam_name))
+                                try:
+                                    for user in self.cfg["users"]:
+                                        # logger.info("Pushing {}".format(exam_name))
+                                        logger.critical("NEW results on {}".format(exam_name))
+                                        msg = "[ЕГЭ] ПОЯВИЛИСЬ РЕЗЫ ПО ЭКЗАМЕНУ \"{}\" на http://nscm.ru/egeresult !!!".format(exam_name)
+                                        usr = user["username"]
+                                        logger.info("Pushing to {}".format(usr))
+                                        request_push_on_main_thread(lambda: make_push(usr, msg))
+                                    self.available_exams.append(exam_name)
+                                except:
+                                    err = format_exc()
+                                    logger.error("Error making push for exam {}: {}".format(exam_name,err))
                 sl = randint(self.cfg["min_wait"]*60, self.cfg["max_wait"]*60)
+                logger.info("Sleeping for {}".format(float(sl)/60.0))
             sl-=1
             sleep(1)
     
@@ -148,23 +171,27 @@ class NSCMChecker(threading.Thread):
 
     def make_nscm_request(self):
         logger.info("Making request to nscm!")
-        resp_str, resp_code = None, None
+        resp_str, resp_code = '', None
         try:
             headers = {
                 'Connection': 'keep-alive',
                 'Content-Length': '0',
-                'Accept': 'text/html, */*; q=0.01',
+                'Accept': 'text/html, */*; charset=utf-8; q=0.01',
                 'Origin': 'http://nscm.ru',
                 'X-Requested-With': 'XMLHttpRequest',
                 'User-Agent': choice(self.useragents),
                 'Referer': 'http://nscm.ru/egeresult/',
-                # 'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
+                'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
             }
             response = requests.post('http://nscm.ru/egeresult/resultform.php', headers=headers, verify=False)
+            resp_code = response.status_code
+            response.encoding = response.apparent_encoding
+            resp_str = response.text
+            return resp_str
         except:
             err = format_exc()
-            logger.error("WARN: error on request to nscm: {}".format(err))
-
+            logger.error("WARN: error on request to nscm: code: {} res: {} err: {}".format(resp_code, resp_str[:256], err))
+            return None
 def main():
     if not path.exists('cfg.json'):
         logger.crititcal("cfg.json should be in same folder!")
@@ -187,6 +214,10 @@ def main():
         thr = CheckerThread(uagents, cfg, user["cookie"], user["username"], user["examcount"])
         thr.start()
         pool.append(thr)
+    logger.info("Starting NSCMThread!")
+    thr = NSCMChecker(uagents, cfg)
+    thr.start()
+    pool.append(thr)
     try:
         logger.info('Press any key to stop...')
         while 1:
