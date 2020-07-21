@@ -22,6 +22,8 @@ logging.basicConfig(format=FORMAT,
                     level=logging.INFO)
 logger = logging.getLogger('ege_checker')
 
+cfg_file = None
+
 try:
     syslog_handler = logging.handlers.SysLogHandler(address = '/dev/log')
     logger.addHandler(syslog_handler)
@@ -44,7 +46,8 @@ sys.stdout = Unbuffered(sys.stdout)
 
 def init_tg_cli(TG_APP_ID, TG_APP_TOKEN):
     global client
-    client = TelegramClient('somesess',
+    # logger.info('PATH: {}/somesess'.format('/'.join( [ e for e in cfg_file.split('/')[:-1] ] ) ))
+    client = TelegramClient('{}/somesess'.format('/'.join( [ e for e in cfg_file.split('/')[:-1] ] ) ),
                             int(TG_APP_ID),
                             TG_APP_TOKEN,
                             proxy=None)
