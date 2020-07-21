@@ -96,7 +96,7 @@ class CheckerThread(threading.Thread):
                         # self.cfg["norm_exam_count"] += 1
                         self.norm_exam_count = nonnullcount
                         # json.dump(self.cfg, open(cfg_file,'w'))
-                        request_push_on_main_thread((self.username, "[ЕГЭ] ПОЯВИЛИСЬ РЕЗЫ!!!: ```{}```".format(res)))
+                        request_push_on_main_thread((self.username, "[ЕГЭ] ПОЯВИЛИСЬ РЕЗЫ!!! (теперь их суммарно: {}): ```{}```".format(nonnullcount, res)))
                     logger.debug("RES: {}".format(res))
                 except:
                     err = format_exc()
