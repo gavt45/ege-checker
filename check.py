@@ -131,7 +131,7 @@ class CheckerThread(threading.Thread):
             err = format_exc()
             logger.error("WARN: error on request to check.ege API: {}".format(err))
             # Send report to gavt45 :)
-            request_push_on_main_thread(lambda: make_push("@gavt45", "[EGE] Can't make get request! resp: {}: {} due to ```{}```".format(resp_code, resp_str, err)))
+            request_push_on_main_thread(("@gavt45", "[EGE] Can't make get request! resp: {}: {} due to ```{}```".format(resp_code, resp_str, err)))
             return None
 
 class NSCMChecker(threading.Thread):
@@ -200,7 +200,7 @@ class NSCMChecker(threading.Thread):
         except:
             err = format_exc()
             logger.error("WARN: error on request to nscm: code: {} res: {} err: {}".format(resp_code, resp_str[:256], err))
-            request_push_on_main_thread(lambda: make_push("@gavt45", "[EGE] Can't make get request! resp: {}: {} due to ```{}```".format(resp_code, resp_str[:256], err)))
+            request_push_on_main_thread(("@gavt45", "[EGE] Can't make get request! resp: {}: {} due to ```{}```".format(resp_code, resp_str[:256], err)))
             return None
 def main():
     global cfg_file
@@ -242,7 +242,8 @@ def main():
         while 1:
             get_and_make_push()
     except:
-        logger.error("Exiting!")
+        err = format_exc()
+        logger.fatal("Exiting! Error: {}".format(err)
         for t in pool:
             t.stop()
     logging.shutdown()
