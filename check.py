@@ -22,8 +22,6 @@ logging.basicConfig(format=FORMAT,
                     level=logging.INFO)
 logger = logging.getLogger('ege_checker')
 
-cfg_file = None
-
 try:
     syslog_handler = logging.handlers.SysLogHandler(address = '/dev/log')
     logger.addHandler(syslog_handler)
@@ -44,10 +42,10 @@ class Unbuffered(object):
 
 sys.stdout = Unbuffered(sys.stdout)
 
-def init_tg_cli(TG_APP_ID, TG_APP_TOKEN):
+def init_tg_cli(TG_APP_ID, TG_APP_TOKEN, session_file_path):
     global client
     # logger.info('PATH: {}/somesess'.format('/'.join( [ e for e in cfg_file.split('/')[:-1] ] ) ))
-    client = TelegramClient('{}/somesess'.format('/'.join( [ e for e in cfg_file.split('/')[:-1] ] ) ),
+    client = TelegramClient('{}/somesess'.format(session_file_path + ('/' if not session_file_path.endswith('/') else '')),
                             int(TG_APP_ID),
                             TG_APP_TOKEN,
                             proxy=None)
@@ -204,7 +202,7 @@ class NSCMChecker(threading.Thread):
             return None
 def main():
     global cfg_file
-    
+
     if len(sys.argv) >= 2:
         cfg_file = sys.argv[1]
     else:
@@ -225,7 +223,7 @@ def main():
     uagents.remove('')
     logger.info("Starting tg client!")
 
-    init_tg_cli(cfg["TG_APP_ID"], cfg["TG_APP_TOKEN"])
+    init_tg_cli(cfg["TG_APP_ID"], cfg["TG_APP_TOKEN"], cfg["session_file_path"])
     # await make_push(1,1)
     pool = []
     logger.info("Starting threads!")
