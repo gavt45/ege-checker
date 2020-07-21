@@ -89,7 +89,7 @@ class CheckerThread(threading.Thread):
                     for exam in res["Result"]["Exams"]:
                         if exam["TestMark"] != 0:
                             nonnullcount += 1
-                    logger.error("NON NULL COUNT: {}".format(nonnullcount))
+                    logger.error("NON NULL COUNT: {} norm count: {}".format(nonnullcount, self.norm_exam_count))
                     if nonnullcount > self.norm_exam_count:
                         logger.critical("EST PROBITIE")
                         logger.critical("RES: {}".format(res))
