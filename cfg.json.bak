@@ -1,16 +1,18 @@
 {
-    "TG_APP_ID": "<TELEGRAM APP ID>",
-    "TG_APP_TOKEN": "<TELEGRAM APP TOKEN>",
+    "TG_APP_ID": "",
+    "TG_APP_TOKEN": "",
     "users": [
-        {"username": "@gavt45", "examcount":1, "cookie": "<Participant cookie value>"}
+        {"username": "@gavt45", "examcount":4, "cookie": "<cookie>"}
     ],
     "exams" : [
         "Информатика_F",
         "Математика",
-        "Русский",
+        "Русский_F",
         "Физика"
-    ], 
-    "useragents_file": "useragents.txt", 
+    ],
+    "useragents_file": "/home/pi/ege-checker/useragents.txt",
+    "session_file_path": "/home/pi/ege-checker",
+    "norm_exam_count": 1, 
     "max_wait": 30, 
-    "min_wait": 5
+    "min_wait": 2
 }
