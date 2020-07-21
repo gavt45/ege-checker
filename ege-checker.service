@@ -9,7 +9,7 @@ Type=simple
 Restart=always
 RestartSec=1
 User=pi
-ExecStart=/usr/bin/env python3 /home/pi/ege-checker/check.py 1>>/home/pi/ege-checker/checker.log 2>>/home/pi/ege-checker/checker.log
+ExecStart=/usr/bin/env python3 /home/pi/ege-checker/check.py /home/pi/ege-checker/cfg.json 1>>/home/pi/ege-checker/checker.log 2>>/home/pi/ege-checker/checker.log
 
 [Install]
 WantedBy=multi-user.target
