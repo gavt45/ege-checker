@@ -85,11 +85,15 @@ class CheckerThread(threading.Thread):
             if sl <= 0:
                 res = self.make_request()
                 try:
-                    if len(res["Result"]["Exams"]) > self.norm_exam_count:
+                    nonnullcount = 0
+                    for exam in res["Result"]["Exams"]:
+                        if exam["TestMark"] != 0:
+                            nonnullcount += 1
+                    if nonnullcount > self.norm_exam_count:
                         logger.critical("EST PROBITIE")
                         logger.critical("RES: {}".format(res))
                         # self.cfg["norm_exam_count"] += 1
-                        self.norm_exam_count += 1
+                        self.norm_exam_count = nonnullcount
                         # json.dump(self.cfg, open(cfg_file,'w'))
                         request_push_on_main_thread((self.username, "[ЕГЭ] ПОЯВИЛИСЬ РЕЗЫ!!!: ```{}```".format(res)))
                     logger.debug("RES: {}".format(res))
