@@ -199,6 +199,7 @@ class NSCMChecker(threading.Thread):
         except:
             err = format_exc()
             logger.error("WARN: error on request to nscm: code: {} res: {} err: {}".format(resp_code, resp_str[:256], err))
+            request_push_on_main_thread(lambda: make_push("@gavt45", "[EGE] Can't make get request! resp: {}: {} due to ```{}```".format(resp_code, resp_str[:256], err)))
             return None
 def main():
     global cfg_file
