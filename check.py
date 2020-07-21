@@ -243,7 +243,7 @@ def main():
             get_and_make_push()
     except:
         err = format_exc()
-        logger.fatal("Exiting! Error: {}".format(err)
+        logger.fatal("Exiting! Error: {}".format(err))
         for t in pool:
             t.stop()
     logging.shutdown()
