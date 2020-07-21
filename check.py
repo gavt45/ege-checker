@@ -162,7 +162,7 @@ class NSCMChecker(threading.Thread):
                                         # logger.info("Pushing {}".format(exam_name))
                                         logger.critical("NEW results on {}".format(exam_name))
                                         msg = "[ЕГЭ] ПОЯВИЛИСЬ РЕЗЫ ПО ЭКЗАМЕНУ \"{}\" на http://nscm.ru/egeresult !!!".format(exam_name)
-                                        usr = user["username"]
+                                        usr = str(user["username"])
                                         # logger.info("Pushing to {}".format(usr))
                                         request_push_on_main_thread(lambda: make_push(usr, msg))
                                     self.available_exams.append(exam_name)
