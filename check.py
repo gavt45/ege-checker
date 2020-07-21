@@ -81,7 +81,7 @@ class CheckerThread(threading.Thread):
                         logger.critical("RES: {}".format(res))
                         # self.cfg["norm_exam_count"] += 1
                         self.norm_exam_count += 1
-                        # json.dump(self.cfg, open('cfg.json','w'))
+                        # json.dump(self.cfg, open(cfg_file,'w'))
                         request_push_on_main_thread(lambda: make_push(self.username, "[ЕГЭ] ПОЯВИЛИСЬ РЕЗЫ!!!: ```{}```".format(res)))
                     logger.debug("RES: {}".format(res))
                 except:
@@ -193,11 +193,18 @@ class NSCMChecker(threading.Thread):
             logger.error("WARN: error on request to nscm: code: {} res: {} err: {}".format(resp_code, resp_str[:256], err))
             return None
 def main():
-    if not path.exists('cfg.json'):
+    if len(sys.argv) >= 2:
+        cfg_file = sys.argv[1]
+    else:
+        logger.fatal("Usage {} <path to config file>".format(sys.argv[0]))
+        exit(1)
+
+
+    if not path.exists(cfg_file):
         logger.crititcal("cfg.json should be in same folder!")
         exit(1)
 
-    cfg = json.load(open('cfg.json'))
+    cfg = json.load(open(cfg_file))
 
     if not path.exists(cfg["useragents_file"]):
         logger.critical("Useragents file not found!")
