@@ -203,6 +203,8 @@ class NSCMChecker(threading.Thread):
             logger.error("WARN: error on request to nscm: code: {} res: {} err: {}".format(resp_code, resp_str[:256], err))
             return None
 def main():
+    global cfg_file
+    
     if len(sys.argv) >= 2:
         cfg_file = sys.argv[1]
     else:
