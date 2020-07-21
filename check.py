@@ -55,7 +55,7 @@ def request_push_on_main_thread(func_to_call_from_main_thread):
 
 def get_and_make_push():
     callback = callback_queue.get() #blocks until an item is available
-    callback()
+    make_push(callback[0], callback[1])
 
 def make_push(idd, push):
     global client
@@ -164,7 +164,7 @@ class NSCMChecker(threading.Thread):
                                         msg = "[ЕГЭ] ПОЯВИЛИСЬ РЕЗЫ ПО ЭКЗАМЕНУ \"{}\" на http://nscm.ru/egeresult !!!".format(exam_name)
                                         usr = str(user["username"])
                                         # logger.info("Pushing to {}".format(usr))
-                                        request_push_on_main_thread(lambda: make_push(usr, msg))
+                                        request_push_on_main_thread((usr, msg))
                                     self.available_exams.append(exam_name)
                                 except:
                                     err = format_exc()
