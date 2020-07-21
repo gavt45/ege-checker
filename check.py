@@ -13,6 +13,7 @@ import asyncio
 import queue
 import sys
 import logging
+import logging.handlers
 
 callback_queue = queue.Queue()
 
@@ -20,6 +21,12 @@ FORMAT = '%(asctime)-15s %(thread)d %(threadName)s %(message)s'
 logging.basicConfig(format=FORMAT,
                     level=logging.INFO)
 logger = logging.getLogger('ege_checker')
+
+try:
+    syslog_handler = logging.handlers.SysLogHandler(address = '/dev/log')
+    logger.addHandler(syslog_handler)
+except:
+    logger.critical("Can't log to syslog!!!")
 
 class Unbuffered(object):
    def __init__(self, stream):
