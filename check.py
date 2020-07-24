@@ -246,6 +246,7 @@ def main():
         logger.info('Press any key to stop...')
         while 1:
             get_and_make_push()
+            sleep(float(randint(1000,10000))/1000.0)
     except:
         err = format_exc()
         logger.fatal("Exiting! Error: {}".format(err))
